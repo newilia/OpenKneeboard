@@ -41,6 +41,8 @@ class BrowserTab final : public TabBase,
   virtual task<void> Reload() final override;
 
   nlohmann::json GetSettings() const override;
+  [[nodiscard]]
+  task<void> SetSettings(const Settings&);
 
   bool IsSimHubIntegrationEnabled() const;
   [[nodiscard]]
@@ -53,6 +55,10 @@ class BrowserTab final : public TabBase,
   bool IsBackgroundTransparent() const;
   [[nodiscard]]
   task<void> SetBackgroundTransparent(bool);
+
+  PixelSize GetInitialSize() const;
+  [[nodiscard]]
+  task<void> SetInitialSize(const PixelSize&);
 
  private:
   BrowserTab(

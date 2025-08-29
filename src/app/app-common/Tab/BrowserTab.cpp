@@ -82,6 +82,16 @@ nlohmann::json BrowserTab::GetSettings() const {
   return mSettings;
 }
 
+task<void> BrowserTab::SetSettings(const Settings& settings) {
+  OPENKNEEBOARD_TraceLoggingCoro("BrowserTab::SetSettings()");
+  if (settings == mSettings) {
+    co_return;
+  }
+  mSettings = settings;
+  co_await this->Reload();
+  this->evSettingsChangedEvent.Emit();
+}
+
 bool BrowserTab::IsSimHubIntegrationEnabled() const {
   return mSettings.mIntegrateWithSimHub;
 }
@@ -120,6 +130,20 @@ task<void> BrowserTab::SetBackgroundTransparent(bool transparent) {
     co_return;
   }
   mSettings.mTransparentBackground = transparent;
+  co_await this->Reload();
+  this->evSettingsChangedEvent.Emit();
+}
+
+PixelSize BrowserTab::GetInitialSize() const {
+  return mSettings.mInitialSize;
+}
+
+task<void> BrowserTab::SetInitialSize(const PixelSize& size) {
+  OPENKNEEBOARD_TraceLoggingCoro("BrowserTab::SetInitialSize()");
+  if (size == mSettings.mInitialSize) {
+    co_return;
+  }
+  mSettings.mInitialSize = size;
   co_await this->Reload();
   this->evSettingsChangedEvent.Emit();
 }

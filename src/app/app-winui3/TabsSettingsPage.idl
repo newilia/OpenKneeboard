@@ -38,6 +38,8 @@ namespace OpenKneeboardApp {
   Boolean AreOpenKneeboardAPIsEnabled;
   Boolean IsSimHubIntegrationEnabled;
   Boolean IsBackgroundTransparent;
+  UInt32 InitialWidth;
+  UInt32 InitialHeight;
 }
 
 [default_interface] runtimeclass TabUIDataTemplateSelector

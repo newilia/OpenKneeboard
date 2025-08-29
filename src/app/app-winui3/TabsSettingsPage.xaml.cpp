@@ -155,9 +155,9 @@ OpenKneeboard::fire_and_forget TabsSettingsPage::RestoreDefaults(
   ContentDialog dialog;
   dialog.XamlRoot(this->XamlRoot());
   dialog.Title(box_value(to_hstring(_("Restore defaults?"))));
-  dialog.Content(
-    box_value(to_hstring(_("Do you want to restore the default tabs list, "
-                           "removing your preferences?"))));
+  dialog.Content(box_value(to_hstring(
+    _("Do you want to restore the default tabs list, "
+      "removing your preferences?"))));
   dialog.PrimaryButtonText(to_hstring(_("Restore Defaults")));
   dialog.CloseButtonText(to_hstring(_("Cancel")));
   dialog.DefaultButton(ContentDialogButton::Close);
@@ -213,8 +213,9 @@ OpenKneeboard::fire_and_forget TabsSettingsPage::ShowDebugInfo(
 
   DebugInfoText().Text(to_hstring(info));
 
-  DebugInfoDialog().Title(winrt::box_value(
-    to_hstring(std::format("'{}' - Debug Information", tab->GetTitle()))));
+  DebugInfoDialog().Title(
+    winrt::box_value(
+      to_hstring(std::format("'{}' - Debug Information", tab->GetTitle()))));
   CopyDebugInfoButton().Tag(winrt::box_value(to_hstring(info)));
   co_await DebugInfoDialog().ShowAsync();
 }
@@ -738,6 +739,44 @@ bool BrowserTabUIData::IsBackgroundTransparent() const {
 OpenKneeboard::fire_and_forget BrowserTabUIData::IsBackgroundTransparent(
   bool value) {
   co_await GetTab()->SetBackgroundTransparent(value);
+}
+
+uint32_t BrowserTabUIData::InitialWidth() const {
+  const auto tab = GetTab();
+  if (!tab) {
+    return Config::DefaultWebPagePixelSize.mWidth;
+  }
+  return tab->GetInitialSize().mWidth;
+}
+
+OpenKneeboard::fire_and_forget BrowserTabUIData::InitialWidth(uint32_t value) {
+  const auto tab = GetTab();
+  if (!tab) {
+    co_return;
+  }
+  auto size = tab->GetInitialSize();
+  size.mWidth = value;
+  co_await tab->SetInitialSize(size);
+  mPropertyChangedEvent(*this, PropertyChangedEventArgs(L"InitialWidth"));
+}
+
+uint32_t BrowserTabUIData::InitialHeight() const {
+  const auto tab = GetTab();
+  if (!tab) {
+    return Config::DefaultWebPagePixelSize.mHeight;
+  }
+  return tab->GetInitialSize().mHeight;
+}
+
+OpenKneeboard::fire_and_forget BrowserTabUIData::InitialHeight(uint32_t value) {
+  const auto tab = GetTab();
+  if (!tab) {
+    co_return;
+  }
+  auto size = tab->GetInitialSize();
+  size.mHeight = value;
+  co_await tab->SetInitialSize(size);
+  mPropertyChangedEvent(*this, PropertyChangedEventArgs(L"InitialHeight"));
 }
 
 std::shared_ptr<BrowserTab> BrowserTabUIData::GetTab() const {
