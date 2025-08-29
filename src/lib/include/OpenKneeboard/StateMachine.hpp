@@ -341,9 +341,9 @@ using LockState = StateMachine<
 
 template <class T>
 concept lockable_state_machine = requires() {
-  { T::Values::Unlocked } -> std::same_as<typename T::Values>;
-  { T::Values::TryLock } -> std::same_as<typename T::Values>;
-  { T::Values::Locked } -> std::same_as<typename T::Values>;
+  requires std::same_as<std::decay_t<decltype(T::Values::Unlocked)>, typename T::Values>;
+  requires std::same_as<std::decay_t<decltype(T::Values::TryLock)>, typename T::Values>;
+  requires std::same_as<std::decay_t<decltype(T::Values::Locked)>, typename T::Values>;
 }
 // clang-format off
     && T::template IsValidTransition<T::Values::Unlocked, T::Values::TryLock>()

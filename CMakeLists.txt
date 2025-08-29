@@ -23,7 +23,7 @@ set(PROJECT_OPENXR_API_LAYER_DESCRIPTION "OpenKneeboard - https://github.com/Ope
 # - GraphicsCaptureItem.TryCreateFromWindowId
 # - icu.dll
 # SDK version below - actually need Win 10 19H1 (18362) or later
-set(MINIMUM_WINDOWS_VERSION "10.0.20348.0")
+set(MINIMUM_WINDOWS_VERSION "10.0.22621.0")
 set(CMAKE_SYSTEM_VERSION "${MINIMUM_WINDOWS_VERSION}" CACHE INTERNAL "Minimum Windows Version" FORCE)
 set(CMAKE_VS_WINDOWS_TARGET_PLATFORM_VERSION "${MINIMUM_WINDOWS_VERSION}" CACHE INTERNAL "Minimum windows version" FORCE)
 

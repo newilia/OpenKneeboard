@@ -124,7 +124,8 @@ D3D11Resources::D3D11Resources() {
       mAdapterLUID = std::bit_cast<uint64_t>(desc.AdapterLuid);
     }
 
-    const auto displayNames = GetMonitorFriendlyNames().value_or({});
+    const auto displayNames = GetMonitorFriendlyNames().value_or(
+      std::unordered_map<std::wstring, std::vector<std::wstring>>{});
 
     winrt::com_ptr<IDXGIOutput> outputIt;
     for (UINT outputIndex = 0;
@@ -134,11 +135,17 @@ D3D11Resources::D3D11Resources() {
       DXGI_OUTPUT_DESC outputDesc {};
       output->GetDesc(&outputDesc);
       const auto nameIt = displayNames.find(outputDesc.DeviceName);
-      const auto monitorNames
-        = (nameIt != displayNames.end() && !nameIt->second.empty())
-        ? std::ranges::to<std::wstring>(std::views::join_with(
-            displayNames.at(outputDesc.DeviceName), L" + "))
-        : L"UNNAMED";
+      std::wstring monitorNames = L"UNNAMED";
+      if (nameIt != displayNames.end() && !nameIt->second.empty()) {
+        const auto& names = nameIt->second;
+        monitorNames.clear();
+        for (size_t i = 0; i < names.size(); ++i) {
+          if (i > 0) {
+            monitorNames += L" + ";
+          }
+          monitorNames += names[i];
+        }
+      }
       dprint(
         L"    Output {} '{}' ('{}'): ({}, {}) -> ({}, {}) ({}x{}) - {}, "
         L"{} hardware-accelerated overlays",
