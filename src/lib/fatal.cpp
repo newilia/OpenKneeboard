@@ -54,7 +54,7 @@ using _ThrowInfo = void*;
 extern "C" void __stdcall _CxxThrowException(void*, _ThrowInfo);
 #endif
 
-using std::operator""s;
+using namespace std::string_literals;
 
 using namespace OpenKneeboard;
 
@@ -525,9 +525,7 @@ extern "C" void __stdcall CxxThrowExceptionHook(
     tLatestException->mFlags &= ~ForceForNextException;
   } else if (pExceptionObject) {
     // Otherwise, it's a rethrow
-    tLatestException = {
-      StackTrace::Current(1),
-    };
+    tLatestException.emplace(StackTrace::Current(1));
   }
 
   gCxxThrowException(pExceptionObject, pThrowInfo);
