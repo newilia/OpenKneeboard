@@ -138,6 +138,12 @@ struct BrowserTabUIData : BrowserTabUIDataT<
   bool IsBackgroundTransparent() const;
   OpenKneeboard::fire_and_forget IsBackgroundTransparent(bool);
 
+  uint32_t InitialWidth() const;
+  OpenKneeboard::fire_and_forget InitialWidth(uint32_t);
+
+  uint32_t InitialHeight() const;
+  OpenKneeboard::fire_and_forget InitialHeight(uint32_t);
+
  private:
   std::shared_ptr<OpenKneeboard::BrowserTab> GetTab() const;
 };

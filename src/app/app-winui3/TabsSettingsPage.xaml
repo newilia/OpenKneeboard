@@ -90,6 +90,32 @@
           Header="SimHub integration"
           OffContent="Disabled"
           OnContent="Automatically resize to fit SimHub dashboards"/>
+        <TextBlock
+          Style="{ThemeResource BodyStrongTextBlockStyle}"
+          Text="Initial Resolution"
+          Margin="0,8,0,4"/>
+        <Grid ColumnDefinitions="*,16,*" RowDefinitions="Auto,Auto">
+          <NumberBox
+            Grid.Column="0"
+            Header="Width (pixels)"
+            Value="{x:Bind InitialWidth, Mode=TwoWay}"
+            Minimum="1"
+            Maximum="16384"
+            SpinButtonPlacementMode="Inline"/>
+          <NumberBox
+            Grid.Column="2"
+            Header="Height (pixels)"
+            Value="{x:Bind InitialHeight, Mode=TwoWay}"
+            Minimum="1"
+            Maximum="16384"
+            SpinButtonPlacementMode="Inline"/>
+        </Grid>
+        <TextBlock
+          Style="{ThemeResource CaptionTextBlockStyle}"
+          Foreground="{ThemeResource TextFillColorSecondary}"
+          TextWrapping="Wrap">
+          Sets the initial rendering resolution for web pages. Web pages can change this dynamically using the OpenKneeboard JavaScript API. Default: 1024×768 pixels.
+        </TextBlock>
       </StackPanel>
     </DataTemplate>
     <!-- DCS Radio Tab -->
