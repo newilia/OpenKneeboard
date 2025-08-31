@@ -24,7 +24,7 @@ constexpr bool Is64BitBuild = (BuildBitness == 64);
 // isn't needed; that said, keep a buffer anyway, as seeing frame counters
 // go backwards is a very easy way to diagnose issues :)
 constexpr unsigned int SHMSwapchainLength = 2;
-constexpr PixelSize MaxViewRenderSize {2048, 2048};
+constexpr PixelSize MaxViewRenderSize {4096, 4096};
 constexpr unsigned char MaxViewCount = 16;
 constexpr unsigned int FramesPerSecond = 90;
 

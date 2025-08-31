@@ -93,9 +93,9 @@ If you have a non-image source (for example, a Word document, spreadsheet, or so
 
 If you include pre-rendered text, disable sub-pixel anti-aliasing: sub-pixel antialiasing will look better on your monitor, but will look worse in headsets. Even if the headset subpixel layout matches, when rendered in 3D in VR and projected for lense distortion, the image pixel grid will *never* line up with the headset pixels.
 
-For images, if the kneeboard - including OpenKneeboard's header and footer - is larger than 2048x2048 pixels or (when non-VR is active) the configured maximum on-screen size, it will be resized to fit, which will lower the quality.
+For images, if the kneeboard - including OpenKneeboard's header and footer - is larger than 4096x4096 pixels or (when non-VR is active) the configured maximum on-screen size, it will be resized to fit, which will lower the quality.
 
-To give space for header, footer, bookmarks bar etc, aim for any images to have heights and widths that are less than 1600px for VR, or 100px less than the configured maximum size for non-VR.
+To give space for header, footer, bookmarks bar etc, aim for any images to have heights and widths that are less than 3600px for VR, or 100px less than the configured maximum size for non-VR.
 
 These guidelines are for new images; in general, resizing existing images will lower the quality compared to letting OpenKneeboard resize the image as needed. If you do choose to resize images, you will usually get the most readable text and clearest lines if you divide the number of pixels by a whole number. For example, if you have a 3000x3000px image, a half-sized version (1500x1500px) will usually be more readable than resizing to 1900x1900px, despite 1900x1900 being higher resolution.
 
