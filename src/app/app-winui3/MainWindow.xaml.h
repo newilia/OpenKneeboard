@@ -17,6 +17,8 @@
 #include <OpenKneeboard/audited_ptr.hpp>
 #include <OpenKneeboard/single_threaded_lockable.hpp>
 
+#include <shellapi.h>
+
 #include <memory>
 #include <thread>
 
@@ -146,6 +148,20 @@ struct MainWindow : MainWindowT<MainWindow>,
   std::shared_ptr<KneeboardState> mKneeboard;
 
   void ResetKneeboardView();
+
+  // System tray
+  static constexpr UINT WM_TRAYICON = WM_USER + 1;
+  static constexpr UINT TRAY_ICON_ID = 1;
+  NOTIFYICONDATAW mTrayIconData {};
+  bool mTrayIconCreated {false};
+  bool mIsClosing {false};
+
+  void CreateTrayIcon();
+  void RemoveTrayIcon();
+  void ShowTrayContextMenu();
+  void ShowWindowFromTray();
+  void HideToTray();
+  void RequestExit();
 };
 }// namespace winrt::OpenKneeboardApp::implementation
 

@@ -101,6 +101,12 @@ struct AdvancedSettingsPage
   uint8_t Quirk_OpenXR_Upscaling() const noexcept;
   OpenKneeboard::fire_and_forget Quirk_OpenXR_Upscaling(uint8_t value) noexcept;
 
+  bool RunAtStartup() const noexcept;
+  OpenKneeboard::fire_and_forget RunAtStartup(bool value) noexcept;
+
+  bool MinimizeToTray() const noexcept;
+  OpenKneeboard::fire_and_forget MinimizeToTray(bool value) noexcept;
+
  private:
   winrt::apartment_context mUIThread {};
   std::shared_ptr<OpenKneeboard::KneeboardState> mKneeboard;

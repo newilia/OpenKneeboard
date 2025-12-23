@@ -38,5 +38,8 @@ namespace OpenKneeboardApp
 
         Boolean Quirk_OculusSDK_DiscardDepthInformation;
         UInt8 Quirk_OpenXR_Upscaling;
+
+        Boolean RunAtStartup;
+        Boolean MinimizeToTray;
     }
 }

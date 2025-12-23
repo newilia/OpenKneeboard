@@ -28,6 +28,8 @@
 
 #include <winrt/Microsoft.UI.Xaml.Controls.h>
 
+#include <format>
+
 using namespace OpenKneeboard;
 using namespace winrt::Microsoft::UI::Xaml;
 using namespace winrt::Microsoft::UI::Xaml::Controls;
@@ -370,6 +372,61 @@ OpenKneeboard::fire_and_forget AdvancedSettingsPage::TintBrightness(
   }
   settings.mTint.mBrightness = value / 100.0f;
   co_await mKneeboard->SetUISettings(settings);
+}
+
+bool AdvancedSettingsPage::RunAtStartup() const noexcept {
+  return mKneeboard->GetAppSettings().mRunAtStartup;
+}
+
+OpenKneeboard::fire_and_forget AdvancedSettingsPage::RunAtStartup(
+  bool value) noexcept {
+  auto settings = mKneeboard->GetAppSettings();
+  if (settings.mRunAtStartup == value) {
+    co_return;
+  }
+  settings.mRunAtStartup = value;
+
+  // Update Windows registry for startup
+  HKEY hKey = nullptr;
+  const wchar_t* keyPath = L"SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Run";
+  const wchar_t* valueName = L"OpenKneeboard";
+
+  if (RegOpenKeyExW(HKEY_CURRENT_USER, keyPath, 0, KEY_SET_VALUE, &hKey)
+      == ERROR_SUCCESS) {
+    if (value) {
+      // Get path to current executable
+      wchar_t exePath[MAX_PATH];
+      GetModuleFileNameW(nullptr, exePath, MAX_PATH);
+      // Add --tray flag for starting minimized to tray
+      std::wstring commandLine = std::format(L"\"{}\" --tray", exePath);
+      RegSetValueExW(
+        hKey,
+        valueName,
+        0,
+        REG_SZ,
+        reinterpret_cast<const BYTE*>(commandLine.c_str()),
+        static_cast<DWORD>((commandLine.size() + 1) * sizeof(wchar_t)));
+    } else {
+      RegDeleteValueW(hKey, valueName);
+    }
+    RegCloseKey(hKey);
+  }
+
+  co_await mKneeboard->SetAppSettings(settings);
+}
+
+bool AdvancedSettingsPage::MinimizeToTray() const noexcept {
+  return mKneeboard->GetAppSettings().mMinimizeToTray;
+}
+
+OpenKneeboard::fire_and_forget AdvancedSettingsPage::MinimizeToTray(
+  bool value) noexcept {
+  auto settings = mKneeboard->GetAppSettings();
+  if (settings.mMinimizeToTray == value) {
+    co_return;
+  }
+  settings.mMinimizeToTray = value;
+  co_await mKneeboard->SetAppSettings(settings);
 }
 
 }// namespace winrt::OpenKneeboardApp::implementation

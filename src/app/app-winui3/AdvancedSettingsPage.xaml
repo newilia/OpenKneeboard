@@ -17,6 +17,39 @@
       Spacing="16"
       x:DefaultBindMode="TwoWay">
       <TextBlock
+        Text="Startup and System Tray"
+        Style="{ThemeResource SubtitleTextBlockStyle}"/>
+      <StackPanel Orientation="Vertical"
+                  Background="{ThemeResource CardBackgroundFillColorDefaultBrush}"
+                  BorderBrush="{ThemeResource CardStrokeColorDefaultBrush}"
+                  CornerRadius="4"
+                  BorderThickness="1"
+                  Padding="8"
+                  Spacing="12">
+        <ToggleSwitch
+          Header="Run at Windows startup"
+          OffContent="Disabled"
+          OnContent="OpenKneeboard starts when Windows starts"
+          IsOn="{x:Bind RunAtStartup, Mode=TwoWay}"/>
+        <TextBlock
+          Style="{ThemeResource CaptionTextBlockStyle}"
+          Foreground="{ThemeResource TextFillColorSecondary}">
+          When enabled, OpenKneeboard will start automatically when you log in
+          to Windows, and will start minimized to the system tray.
+        </TextBlock>
+        <ToggleSwitch
+          Header="Minimize to system tray on close"
+          OffContent="Closing the window exits the application"
+          OnContent="Closing the window minimizes to system tray"
+          IsOn="{x:Bind MinimizeToTray, Mode=TwoWay}"/>
+        <TextBlock
+          Style="{ThemeResource CaptionTextBlockStyle}"
+          Foreground="{ThemeResource TextFillColorSecondary}">
+          When enabled, closing the main window will hide OpenKneeboard to the
+          system tray instead of exiting. Right-click the tray icon to exit.
+        </TextBlock>
+      </StackPanel>
+      <TextBlock
         Text="Multiple Views"
         Style="{ThemeResource SubtitleTextBlockStyle}"/>
       <StackPanel Orientation="Vertical"

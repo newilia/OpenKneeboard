@@ -44,6 +44,8 @@ struct AppSettings final {
   AutoUpdateSettings mAutoUpdate {};
   std::string mLastRunVersion;
   bool mAlwaysShowDeveloperTools {false};
+  bool mRunAtStartup {false};
+  bool mMinimizeToTray {true};
 
   struct Deprecated {
     struct DualKneeboardSettings final {

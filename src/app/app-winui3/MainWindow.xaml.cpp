@@ -19,6 +19,7 @@
 #include "TabPage.xaml.h"
 
 #include <OpenKneeboard/APIEvent.hpp>
+#include <OpenKneeboard/AppSettings.hpp>
 #include <OpenKneeboard/DXResources.hpp>
 #include <OpenKneeboard/Elevation.hpp>
 #include <OpenKneeboard/Filesystem.hpp>
@@ -85,7 +86,26 @@ MainWindow::MainWindow() : mDXR(new DXResources()) {
   Title(L"OpenKneeboard");
   ExtendsContentIntoTitleBar(true);
   SetTitleBar(AppTitleBar());
-  Closed([this](const auto&, const auto&) { this->Shutdown(); });
+  Closed([this](const auto&, const auto& args) {
+    if (mIsClosing) {
+      // Allow the close to proceed
+      return;
+    }
+    // Check if we should minimize to tray
+    bool minimizeToTray = true;  // Default behavior
+    if (mKneeboard) {
+      minimizeToTray = mKneeboard->GetAppSettings().mMinimizeToTray;
+    }
+    if (minimizeToTray) {
+      // Cancel the close and hide to tray instead
+      args.Handled(true);
+      this->HideToTray();
+    } else {
+      // Exit the application
+      mIsClosing = true;
+      this->Shutdown();
+    }
+  });
 
   auto bigIcon = LoadImageW(
     GetModuleHandleW(nullptr),
@@ -649,6 +669,7 @@ task<void> MainWindow::WriteInstanceData() {
 
 MainWindow::~MainWindow() {
   dprint("{}", __FUNCTION__);
+  RemoveTrayIcon();
   gMainWindow = {};
 }
 
@@ -1281,12 +1302,17 @@ void MainWindow::Show() {
     CommandLineToArgvW(GetCommandLineW(), &argc)};
 
   bool minimized = false;
+  bool startToTray = false;
 
   const constexpr std::wstring_view minimizedFlag(L"--minimized");
+  const constexpr std::wstring_view trayFlag(L"--tray");
 
   for (int i = 0; i < argc; ++i) {
     if (argv[i] == minimizedFlag) {
       minimized = true;
+    }
+    if (argv[i] == trayFlag) {
+      startToTray = true;
     }
   }
 
@@ -1297,7 +1323,15 @@ void MainWindow::Show() {
   // Always use `ShowWindow()` instead of `->Activate()` so that it's obvious
   // if
   // `->Activate()` starts to be required.
-  ShowWindow(mHwnd, minimized ? SW_SHOWMINNOACTIVE : SW_SHOWNORMAL);
+  if (startToTray) {
+    // Start hidden in system tray
+    CreateTrayIcon();
+    ShowWindow(mHwnd, SW_HIDE);
+  } else if (minimized) {
+    ShowWindow(mHwnd, SW_SHOWMINNOACTIVE);
+  } else {
+    ShowWindow(mHwnd, SW_SHOWNORMAL);
+  }
 }
 
 std::filesystem::path MainWindow::GetInstanceDataPath() {
@@ -1322,13 +1356,106 @@ LRESULT MainWindow::SubclassProc(
       // This won't complete as the window message loop is never re-entered,
       // but we want to do as much as we can, especially clearing the 'unsafe
       // shutdown' marker
-      self->Shutdown();
+      self->RequestExit();
+      break;
+    case WM_TRAYICON:
+      if (lParam == WM_LBUTTONDBLCLK) {
+        self->ShowWindowFromTray();
+      } else if (lParam == WM_RBUTTONUP) {
+        self->ShowTrayContextMenu();
+      }
       break;
     default:
       // Just the default behavior
       break;
   }
   return DefSubclassProc(hWnd, uMsg, wParam, lParam);
+}
+
+void MainWindow::CreateTrayIcon() {
+  if (mTrayIconCreated) {
+    return;
+  }
+
+  mTrayIconData = {};
+  mTrayIconData.cbSize = sizeof(NOTIFYICONDATAW);
+  mTrayIconData.hWnd = mHwnd;
+  mTrayIconData.uID = TRAY_ICON_ID;
+  mTrayIconData.uFlags = NIF_ICON | NIF_MESSAGE | NIF_TIP;
+  mTrayIconData.uCallbackMessage = WM_TRAYICON;
+  mTrayIconData.hIcon = LoadIconW(GetModuleHandleW(nullptr), L"appIcon");
+  wcscpy_s(mTrayIconData.szTip, L"OpenKneeboard");
+
+  if (Shell_NotifyIconW(NIM_ADD, &mTrayIconData)) {
+    mTrayIconCreated = true;
+    dprint("Tray icon created successfully");
+  } else {
+    dprint.Warning("Failed to create tray icon");
+  }
+}
+
+void MainWindow::RemoveTrayIcon() {
+  if (!mTrayIconCreated) {
+    return;
+  }
+
+  Shell_NotifyIconW(NIM_DELETE, &mTrayIconData);
+  mTrayIconCreated = false;
+  dprint("Tray icon removed");
+}
+
+void MainWindow::ShowTrayContextMenu() {
+  HMENU hMenu = CreatePopupMenu();
+  if (!hMenu) {
+    return;
+  }
+
+  AppendMenuW(hMenu, MF_STRING, 1, L"Show OpenKneeboard");
+  AppendMenuW(hMenu, MF_SEPARATOR, 0, nullptr);
+  AppendMenuW(hMenu, MF_STRING, 2, L"Exit");
+
+  POINT pt;
+  GetCursorPos(&pt);
+
+  // Required for the menu to disappear when clicking outside
+  SetForegroundWindow(mHwnd);
+
+  UINT cmd = TrackPopupMenu(
+    hMenu,
+    TPM_RETURNCMD | TPM_NONOTIFY | TPM_RIGHTBUTTON,
+    pt.x,
+    pt.y,
+    0,
+    mHwnd,
+    nullptr);
+
+  DestroyMenu(hMenu);
+
+  switch (cmd) {
+    case 1:
+      ShowWindowFromTray();
+      break;
+    case 2:
+      RequestExit();
+      break;
+  }
+}
+
+void MainWindow::ShowWindowFromTray() {
+  ShowWindow(mHwnd, SW_SHOWNORMAL);
+  SetForegroundWindow(mHwnd);
+}
+
+void MainWindow::HideToTray() {
+  CreateTrayIcon();
+  ShowWindow(mHwnd, SW_HIDE);
+  dprint("Window hidden to tray");
+}
+
+void MainWindow::RequestExit() {
+  mIsClosing = true;
+  RemoveTrayIcon();
+  this->Shutdown();
 }
 
 }// namespace winrt::OpenKneeboardApp::implementation

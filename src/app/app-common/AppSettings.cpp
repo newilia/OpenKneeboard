@@ -78,6 +78,8 @@ OPENKNEEBOARD_DEFINE_SPARSE_JSON(
   AppSettings,
   mAutoUpdate,
   mLastRunVersion,
-  mAlwaysShowDeveloperTools)
+  mAlwaysShowDeveloperTools,
+  mRunAtStartup,
+  mMinimizeToTray)
 
 }// namespace OpenKneeboard
